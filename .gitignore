@@ -1,0 +1,18 @@
+# Byte-compiled / optimized Python files
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.env
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Miscellaneous
+*.bak
+*.swp
+*~
+
+# Data
+data/

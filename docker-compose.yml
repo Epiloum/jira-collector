@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  jint-mariadb:
+    image: mariadb:10.6.13
+    container_name: ${DB_CONTAINER_NAME}
+    restart: always
+    env_file: .env
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      TZ: ${DB_TIMEZONE}
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - ${DB_EXTERNAL_PORT}:3306
+    networks:
+      - jint_net
+
+  jint-collector:
+    container_name: jint-collector
+    depends_on:
+      - jint-mariadb
+    build:
+      context: ./
+      dockerfile: ./scheduler/Dockerfile
+    restart: always
+    networks:
+      - jint_net
+
+  jint-viewer:
+    build:
+      context: ./
+      dockerfile: ./viewer/Dockerfile
+    env_file: .env
+    depends_on:
+      - jint-mariadb
+    ports:
+      - ${VIEWER_PORT}:80
+    networks:
+      - jint_net
+
+networks:
+  jint_net:
+    driver: bridge
