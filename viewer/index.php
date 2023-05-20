@@ -55,7 +55,7 @@ while($v = $res->fetch_object()) {
         'code' => $v->k,
         'title' => $v->title,
         'assignee' => $v->assignee,
-        'left' => (strtotime(substr($v->started_at, 0, 10)) - $st) / 86400 * (DAY_WIDTH + 3) - 2,
+        'left' => max(-1, (strtotime(substr($v->started_at, 0, 10)) - $st) / 86400 * (DAY_WIDTH + 3) - 2),
         'width' => ((strtotime(substr($v->ended_at, 0, 10)) - strtotime(substr($v->started_at, 0, 10))) / 86400 + 1) * (DAY_WIDTH + 3)
     ];
 }
@@ -65,10 +65,26 @@ while($v = $res->fetch_object()) {
 <head>
 <title>마켓개발4팀</title>
 <meta charset="UTF-8">
-<link href="index.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="index.css" type="text/css" />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" //>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
+<script>
+    $( function() {
+        $("#datepicker_st").datepicker({dateFormat: "yy-mm-dd"});
+        $("#datepicker_ed").datepicker({dateFormat: "yy-mm-dd"});
+    });
+</script>
 </head>
 <body>
-<table>
+<header>
+    <form>
+        From <input name="st" type="text" value="<?php echo date('Y-m-d', $st) ?>" id="datepicker_st" />
+        To <input name="ed" type="text" value="<?php echo date('Y-m-d', $ed) ?>" id="datepicker_ed" />
+        <input type="submit" value="Search" />
+    </form>
+</header>
+<table id="tbl_gannt">
     <thead>
         <tr>
             <th rowspan="2">Code</th>
