@@ -53,12 +53,16 @@ $res = $db->query('
 ');
 
 while($v = $res->fetch_object()) {
+    $dt_st = strtotime(substr($v->started_at, 0, 10));
+    $dt_ed = strtotime(substr($v->ended_at, 0, 10));
+
     $issues[] = [
         'code' => $v->k,
         'title' => $v->title,
         'assignee' => $v->assignee,
+        'cell' => max(0, ($dt_st - $st) / 86400),
         'left' => max(-1, (strtotime(substr($v->started_at, 0, 10)) - $st) / 86400 * (DAY_WIDTH + 3) - 2),
-        'width' => ((strtotime(substr($v->ended_at, 0, 10)) - strtotime(substr($v->started_at, 0, 10))) / 86400 + 1) * (DAY_WIDTH + 3)
+        'width' => (($dt_ed - max($st, $dt_st)) / 86400 + 1) * (DAY_WIDTH + 3)
     ];
 }
 ?>
@@ -71,12 +75,7 @@ while($v = $res->fetch_object()) {
 <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" //>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
-<script>
-    $( function() {
-        $("#datepicker_st").datepicker({dateFormat: "yy-mm-dd"});
-        $("#datepicker_ed").datepicker({dateFormat: "yy-mm-dd"});
-    });
-</script>
+<script src="index.js" type="text/javascript"></script>
 </head>
 <body>
 <header>
@@ -99,19 +98,21 @@ while($v = $res->fetch_object()) {
     </thead>
     <tbody>
         <?php
-        $wd = $frist_wd;
-        $gantt = '';
-        $replacer = '[#REPLCER#]';
-
-        for($i=0; $i < $cnt_day; $i++) {
-            $gantt .= '<td class="d' . $wd . '">' .$replacer . '</td>';
-            $wd = ($wd + 1) % 7;
-            $replacer = '';
-        }
-        
         foreach($issues as $v) {
-            $bar = '<div class="bar" style="left:' . ($v['left'] + 1) . 'px; width: ' . ($v['width']) . 'px"></div>';
-            echo '<tr><th>' . $v['code'] . '</th><th>' . $v['title'] . '</th><th>' . $v['assignee'] . '</th>' . str_replace('[#REPLCER#]', $bar, $gantt) . '</tr>';
+            $gantt = '';
+            $wd = $frist_wd;
+
+            for($i=0; $i < $cnt_day; $i++) {
+                if($v['cell'] == $i) {
+                    $gantt .= '<td class="d' . $wd . '"><div class="bar" style="width: ' . ($v['width']) . 'px"></div></td>';
+                } else {
+                    $gantt .= '<td class="d' . $wd . '"></td>';
+                }
+    
+                $wd = ($wd + 1) % 7;
+            }
+
+            echo '<tr><th>' . $v['code'] . '</th><th>' . $v['title'] . '</th><th>' . $v['assignee'] . '</th>' . $gantt . '</tr>';
         }
         ?>
     </tbody>    

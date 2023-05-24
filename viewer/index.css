@@ -76,10 +76,8 @@ table#tbl_gannt tbody th:nth-child(2) {
   text-align: left;
 }
 table#tbl_gannt tbody td {
-  border: 1px solid #eee;
-}
-table#tbl_gannt tbody td:nth-child(4) {
   position: relative;
+  border: 1px solid #eee;
 }
 table#tbl_gannt tbody td.d6,
 table#tbl_gannt tbody td.d0 {
@@ -91,12 +89,18 @@ table#tbl_gannt tbody tr:last-child td {
 table#tbl_gannt tbody tr td:last-child {
   border-right: 1px solid #ccc;
 }
+table#tbl_gannt tbody tr.highlighted th,
+table#tbl_gannt tbody tr.highlighted td {
+  background-color: #fff3cc;
+}
 table#tbl_gannt .bar {
   position: absolute;
   background: #888;
   opacity: 0.7;
+  left: -1px;
   top: 6px;
   bottom: 6px;
+  z-index:1;
 }
 table#tbl_gannt tr:nth-child(7n) .bar {
   background: #be2edd;
