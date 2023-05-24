@@ -36,11 +36,13 @@ def getFromJIRA(project, jql_query):
         data = response.json()
         issues = data["issues"]
         for issue in issues:
+            url = issue["self"][:issue["self"].find("atlassian.net/") + 14] + "browse/" + issue["key"]
+
             if issue["fields"]["assignee"] is not None:
                 assignee = issue["fields"]["assignee"].get("displayName", "")
             else:
                 assignee = ''
 
-            res.append({"k": issue["key"], "status": issue["fields"]["status"]["name"], "assignee": assignee, "title": issue["fields"]["summary"]});
+            res.append({"k": issue["key"], "status": issue["fields"]["status"]["name"], "assignee": assignee, "title": issue["fields"]["summary"], "url": url});
     
     return res

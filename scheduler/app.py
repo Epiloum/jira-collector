@@ -35,7 +35,7 @@ def procInProgress(conn):
     try:
         for v in res:
             keys.append(v["k"])
-            cur.execute("INSERT INTO issues (k, title) VALUES ('" + v["k"] + "', '" + v["title"] + "') ON DUPLICATE KEY UPDATE title = '" + v["title"] + "'")        
+            cur.execute("INSERT INTO issues (k, title, url) VALUES ('" + v["k"] + "', '" + v["title"] + "', '" + v["url"] + "') ON DUPLICATE KEY UPDATE title = '" + v["title"] + "', url = '" + v["url"] + "'")        
 
             # 해당 이슈의 진행중 항목 가져오기
             cur.execute("SELECT id, assignee FROM periods WHERE k = '" + v["k"] + "' AND finished = 'n'")
@@ -78,7 +78,7 @@ def procResolved(conn):
 
             if row is None:
                 # 진행중 항목이 없으면, 항목 생성
-                cur.execute("INSERT INTO issues (k, title) VALUES ('" + v["k"] + "', '" + v["title"] + "') ON DUPLICATE KEY UPDATE title = '" + v["title"] + "'")        
+                cur.execute("INSERT INTO issues (k, title, url) VALUES ('" + v["k"] + "', '" + v["title"] + "', '" + v["url"] + "') ON DUPLICATE KEY UPDATE title = '" + v["title"] + "', url = '" + v["url"] + "'")        
                 cur.execute("INSERT INTO periods (k, assignee, started_at, ended_at, finished) VALUES ('" + v["k"] + "', '" + v["assignee"] + "', NOW(), NOW(), 'y')")        
 
         conn.commit()
