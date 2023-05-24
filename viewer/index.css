@@ -17,8 +17,16 @@ header input {
   font-size: 12px;
   font-family: "Noto Sans KR", "Apple Gothic", "Malgun Gothic";
 }
-header input[type="text"] {
+header input::placeholder {
+  color: #888;
+  font-size: 12px;
+  font-family: "Noto Sans KR", "Apple Gothic", "Malgun Gothic";
+}
+header input.dt {
   width: 70px;
+}
+header input[name="nm"] {
+  width: 100px;
 }
 table#tbl_gannt {
   border-collapse: collapse;

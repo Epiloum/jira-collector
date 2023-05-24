@@ -5,9 +5,10 @@ require_once('db.php');
 // 상수
 define('DAY_WIDTH', 20);
 
-// 날짜 계산
+// 변수 처리
 $st = preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $_GET['st'] ?? '')? strtotime($_GET['st']): strtotime(date('Y-m-d 00:00:00', time() - 86400*7));
 $ed = preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $_GET['ed'] ?? '')? strtotime($_GET['ed']): strtotime(date('Y-m-d 00:00:00', $st + 86400*14)) + 86399;
+$nm = trim($_GET['nm'] ?? '');
 
 // 헤더 표시
 $header_month = [];
@@ -45,9 +46,10 @@ $res = $db->query('
     WHERE
         periods.started_at <= "' . date('Y-m-d H:i:s', $ed) . '"
         AND periods.ended_at >= "' . date('Y-m-d H:i:s', $st) . '"
+        ' . ($nm? 'AND assignee = "' . $db->real_escape_string($nm) . '"': '') . '
     ORDER BY
-        periods.started_at ASC,
-        periods.ended_at ASC
+        DATE(IFNULL(periods.ended_at, periods.started_at)) ASC,
+        periods.started_at ASC
 ');
 
 while($v = $res->fetch_object()) {
@@ -63,7 +65,7 @@ while($v = $res->fetch_object()) {
 <!DOCTYPE html>
 <html>
 <head>
-<title>마켓개발4팀</title>
+<title>JIRA Job Collector</title>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="index.css" type="text/css" />
 <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" //>
@@ -79,8 +81,9 @@ while($v = $res->fetch_object()) {
 <body>
 <header>
     <form>
-        From <input name="st" type="text" value="<?php echo date('Y-m-d', $st) ?>" id="datepicker_st" />
-        To <input name="ed" type="text" value="<?php echo date('Y-m-d', $ed) ?>" id="datepicker_ed" />
+        From <input name="st" class="dt" type="text" value="<?php echo date('Y-m-d', $st) ?>" id="datepicker_st" />
+        To <input name="ed" class="dt" type="text" value="<?php echo date('Y-m-d', $ed) ?>" id="datepicker_ed" />
+        <input name="nm" type="text" value="<?php echo $nm ?>" placeholder="Assignee" />
         <input type="submit" value="Search" />
     </form>
 </header>
@@ -88,8 +91,8 @@ while($v = $res->fetch_object()) {
     <thead>
         <tr>
             <th rowspan="2">Code</th>
-            <th rowspan="2">이슈명</th>
-            <th rowspan="2">담당자</th>
+            <th rowspan="2">Issue Name</th>
+            <th rowspan="2">Assignee</th>
             <?php echo implode('', $header_month) ?>
         </tr>
         <tr><?php echo implode('', $header_day) ?></tr>
